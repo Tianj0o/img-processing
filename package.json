@@ -7,9 +7,9 @@
     "dev":"rollup -w -c",
     "build":"rollup -c"
   },
-  "keywords": [],
+  "keywords": [""],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.2",
     "rollup": "^2.70.2",
