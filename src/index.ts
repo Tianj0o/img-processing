@@ -2,7 +2,7 @@ class Img {
   aspectRation: number = 0;
   img: HTMLImageElement;
   canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D | null;
+  private ctx: CanvasRenderingContext2D | null;
   onloadlist: Function[] = [];
   isLoad = false;
   constructor(url: string) {
@@ -18,6 +18,7 @@ class Img {
       this.doJobs();
     };
   }
+
   show(container: HTMLElement, width?: number, height?: number) {
     let h = height || 0;
     let w = width || 0;
@@ -41,6 +42,48 @@ class Img {
       this.canvas.style.width = w + "px";
       this.ctx?.drawImage(this.img, 0, 0, w, h);
     });
+    if (this.isLoad) {
+      this.doJobs();
+    }
+    return this
+  }
+  toGray() {
+    this.draw((imgData) => {
+      const rgbData = imgData?.data
+      if (rgbData) {
+        for (let i = 0; i < rgbData.length; i += 4) {
+          let gray = 0.299 * rgbData[i] + 0.587 * rgbData[i + 1] + 0.114 * rgbData[i + 2];
+          rgbData[i] = gray;
+          rgbData[i + 1] = gray;
+          rgbData[i + 2] = gray;
+        }
+      }
+    })
+    return this
+  }
+  toInvert() {
+    this.draw((imgData) => {
+      const rgbData = imgData?.data
+      if (rgbData) {
+        for (let i = 0; i < rgbData.length; i += 4) {
+          rgbData[i] = 255 - rgbData[i];
+          rgbData[i + 1] = 255 - rgbData[i + 1];
+          rgbData[i + 2] = 255 - rgbData[i + 2];
+        }
+      }
+    })
+    return this
+  }
+
+  private draw(callback: (imgData: ImageData) => void) {
+    this.onloadlist.push(() => {
+      const imgData = this.ctx?.getImageData(0, 0, this.canvas.width, this.canvas.height);
+
+      if (imgData) {
+        callback(imgData)
+        this.ctx?.putImageData(imgData, 0, 0)
+      }
+    })
     if (this.isLoad) {
       this.doJobs();
     }
